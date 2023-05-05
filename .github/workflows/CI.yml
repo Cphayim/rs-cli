@@ -194,7 +194,7 @@ jobs:
           docker run --rm \
           -v $(which pnpm):/usr/local/bin/pnpm \
           -v $(pwd):/build \
-          -w /build
+          -w /build \
           node:${{ matrix.node }}-slim pnpm test
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
@@ -235,7 +235,7 @@ jobs:
           docker run --rm \
           -v $(which pnpm):/usr/local/bin/pnpm \
           -v $(pwd):/build \
-          -w /build
+          -w /build \
           node:${{ matrix.node }}-slim pnpm test
       # - name: Setup and run tests
       #   uses: addnab/docker-run-action@v3
