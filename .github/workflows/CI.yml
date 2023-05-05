@@ -56,6 +56,8 @@ jobs:
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
       - name: Setup node
         uses: actions/setup-node@v3
         if: ${{ !matrix.settings.docker }}
@@ -135,6 +137,8 @@ jobs:
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -167,6 +171,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -207,6 +213,8 @@ jobs:
       - name: List packages
         run: ls -R .
         shell: bash
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
       - name: Install dependencies
         run: |
           pnpm config set supportedArchitectures.cpu "arm64"
@@ -235,6 +243,8 @@ jobs:
       - test-linux-aarch64-gnu-binding
     steps:
       - uses: actions/checkout@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
       - name: Setup node
         uses: actions/setup-node@v3
         with:
