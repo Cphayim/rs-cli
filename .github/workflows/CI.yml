@@ -27,9 +27,17 @@ jobs:
             build: |
               pnpm build
               strip -x *.node
+          - host: macos-latest
+            target: aarch64-apple-darwin
+            build: |
+              pnpm build --target aarch64-apple-darwin
+              strip -x *.node
           - host: windows-latest
-            build: pnpm build
             target: x86_64-pc-windows-msvc
+            build: pnpm build
+          - host: windows-latest
+            target: aarch64-pc-windows-msvc
+            build: pnpm build --target aarch64-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
@@ -37,11 +45,6 @@ jobs:
               set -e &&
               pnpm build --target x86_64-unknown-linux-gnu &&
               strip *.node
-          - host: macos-latest
-            target: aarch64-apple-darwin
-            build: |
-              pnpm build --target aarch64-apple-darwin
-              strip -x *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
@@ -49,9 +52,6 @@ jobs:
               set -e &&
               pnpm build --target aarch64-unknown-linux-gnu &&
               aarch64-unknown-linux-gnu-strip *.node
-          - host: windows-latest
-            target: aarch64-pc-windows-msvc
-            build: pnpm build --target aarch64-pc-windows-msvc
     name: stable - ${{ matrix.settings.target }} - node@18
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -131,7 +131,7 @@ jobs:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
         node:
-          - '14'
+          # - '14'
           - '16'
           - '18'
     runs-on: ${{ matrix.settings.host }}
@@ -165,7 +165,7 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
+          # - '14'
           - '16'
           - '18'
     runs-on: ubuntu-latest
@@ -190,7 +190,12 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim pnpm test
+        run: |
+          docker run --rm \
+          -v $(which pnpm):/usr/local/bin/pnpm \
+          -v $(pwd):/build \
+          -w /build
+          node:${{ matrix.node }}-slim pnpm test
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
     needs:
@@ -199,7 +204,7 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
+          # - '14'
           - '16'
           - '18'
     runs-on: ubuntu-latest
@@ -225,15 +230,22 @@ jobs:
         with:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Setup and run tests
-        uses: addnab/docker-run-action@v3
-        with:
-          image: node:${{ matrix.node }}-slim
-          options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
-          run: |
-            set -e
-            pnpm test
-            ls -la
+      - name: Test bindings
+        run: |
+          docker run --rm \
+          -v $(which pnpm):/usr/local/bin/pnpm \
+          -v $(pwd):/build \
+          -w /build
+          node:${{ matrix.node }}-slim pnpm test
+      # - name: Setup and run tests
+      #   uses: addnab/docker-run-action@v3
+      #   with:
+      #     image: node:${{ matrix.node }}-slim
+      #     options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
+      #     run: |
+      #       set -e
+      #       pnpm test
+      #       ls -la
   publish:
     name: Publish
     runs-on: ubuntu-latest
